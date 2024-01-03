@@ -1,0 +1,14 @@
+.oh-my-zsh/cache/**
+.emacs.d/.local/**
+
+asound
+scripts
+
+{{- if not .secrets }}
+.weechat/certs
+.ssh/ansible.pub
+.ssh/authorized_keys
+.ssh/gem*.asc
+{{- end }}
+
+.dotfiles/vifm/.config/vifm/*.txt

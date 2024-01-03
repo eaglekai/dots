@@ -1,0 +1,56 @@
+# SSL
+set lock-types flock
+set maximum-size 10M
+set verify-certificates
+
+# Dir
+$path = "%h/.mail"
+$personal = "${path}/Personal"
+
+# General
+action "drop" drop
+action "inbox" maildir "${path}/Inbox"
+action "junk" maildir "${path}/Junk"
+action "sent" maildir "${path}/Sent"
+action "spam" maildir "${path}/Spam"
+
+action "personal" maildir "${personal}/Inbox"
+
+# Mutt use maildir
+action "inbox-personal" maildir "${path}/Personal/Inbox"
+action "junk-personal" maildir "${path}/Personal/Junk"
+
+# Accounts (using isync)
+#{{ if .secrets }}
+#account "personal" imaps
+#  server {{ (passFields "mail/personal").imap | trim | quote }}
+#  port {{ (passFields "mail/personal").imap_port | trim | quote }}
+#  user {{ (passFields "mail/personal").user | trim | quote }}
+#  pass '{{ (passFields "mail/personal").pass | trim }}'
+#{{ end }}
+
+#account "gmail" imaps server "imap.googlemail.com"
+#  port 993 user "{{ .name }}@gmail.com" pass $(pass gmail/{{ .name }})
+
+# Junk (spam)
+match "^From:.*ezine@recruitni.com" in headers action drop
+match "^From:.*@*.chase.com" in headers action drop
+match "^From:.*@*.chaseonline.com" in headers action drop
+match "^From:.*@citi-bank.com" in headers action drop
+match "^From:.*@emaillabs.com" in headers action drop
+match "^From:.*baypos@gmail.com" in headers action drop
+match "^From:.*E-Greeting" in headers action drop
+match "^From:.*@postcard.org" in headers action drop
+match "^From:.*@mail.itp.net" in headers action drop
+match "^From:.*@faith-h.net" in headers action drop
+match "^From:.*reponse@altech-france.fr" in headers action drop
+match "^From:.*ecards@americangreetings.com" in headers action drop
+
+{{ if .secrets }}
+match "^(From|To):.*[{{ (passFields "mail/personal").user }}]" in headers {
+  match all action "personal"
+}
+{{ end }}
+
+# Default action
+match all action "inbox"
